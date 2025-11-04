@@ -10,11 +10,11 @@ If you switch to “Sign-Language-Digits-Dataset-master” or any other dataset 
 
 set max_num_hands = 1 in hands_model,
 
-remove the part
+remove that part"
 
 else:
     points2 = torch.zeros(21, 3)
-
+"
 
 in both the model and dataset code.
 
