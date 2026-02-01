@@ -19,7 +19,7 @@ class dataset:
         else:
             self.data_dir = Path(self.data_dir[0])
 
-        labels = os.listdir(self.data_dir)
+        labels = sorted(os.listdir(self.data_dir))
         
         self.label_map = { k : v for v ,k in enumerate(labels)}
 
@@ -115,7 +115,7 @@ valid_len= len(dataset) - train_len
 
 tensor_dataset = TensorDataset(x,y)
 
-train_dataset , valid_dataset = random_split(data , [train_len , valid_len])
+train_dataset , valid_dataset = random_split(tensor_dataset , [train_len , valid_len])
 
 traning_loader = DataLoader( train_dataset , batch_size= 32, shuffle=True)
 valid_loader = DataLoader(valid_dataset , batch_size=32 , shuffle=False)
