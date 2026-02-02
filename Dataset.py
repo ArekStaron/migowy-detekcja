@@ -4,8 +4,9 @@ import os
 import mediapipe as mp
 import cv2 
 import torch
-from config import DATA_DIR
 
+
+DATA_DIR = "data"
 class Dataset:
     def __init__(self , *data_dir :tuple ,num_hands=1,):
         assert num_hands in (1,2) , f"num_hands must be 1 or 2 can't be {num_hands} "

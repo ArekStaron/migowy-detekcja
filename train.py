@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from model import Feather_MLP , Sign_language_PointNet
 import optuna
+import json
 
 data = torch.load("tensordata.pt")
 
@@ -24,7 +25,7 @@ label_map = data["label_map"]
 out_size =len(label_map)
 
 
-#Get Hiperparamiters
+
 def train_eval(model,lr, train_data, valid_data , epoch, device = "cuda"):
     
     optimizer = torch.optim.Adam(model.parameters() , lr)
@@ -108,18 +109,37 @@ lr = p.get("lr")
 layer_num_mlp = p.get("layer_num_mlp")
 layer_num = p.get("layer_num")
 
-feather_model = Feather_MLP(xyz=3 , 
-                            hidden_size=hidden_size_mlp, 
-                            feathers_size=feather_size,
-                            layer_num= layer_num_mlp
-                              )
-model = Sign_language_PointNet(mlp = feather_model ,
-                                hidden_size=hidden_size, 
-                                out_size=out_size,
-                                layer_num=layer_num  
-                                  )
+best_params = {
+        "mlp_hidden_size": hidden_size_mlp,
+        "feather_size": feather_size,
+        "hidden_size": hidden_size,
+        "lr": lr,
+        "layer_num_mlp": layer_num_mlp,
+        "layer_num": layer_num,
+         "best_val_loss":   study.best_value,  
+    }
+
+
+with open("best_hiperparams.json", "w") as f:
+    json.dump(best_params , f , indent=4)
+
+
+feather_model = Feather_MLP(
+    xyz=3 , 
+    hidden_size=hidden_size_mlp, 
+    feathers_size=feather_size,
+    layer_num= layer_num_mlp
+)
+
+model = Sign_language_PointNet(
+    mlp = feather_model ,
+    hidden_size=hidden_size, 
+    out_size=out_size,
+    layer_num=layer_num  
+ )
 
 train_eval(model,lr,traning_loader , valid_loader , epoch=10)
+
 
 torch.save(model.state_dict() , "model.pt")
 

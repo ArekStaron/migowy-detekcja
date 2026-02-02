@@ -1,0 +1,9 @@
+{
+    "mlp_hidden_size": 92,
+    "feather_size": 92,
+    "hidden_size": 104,
+    "lr": 0.00018177922692106004,
+    "layer_num_mlp": 2,
+    "layer_num": 2,
+    "best_val_loss": 0.006589737958283669
+}

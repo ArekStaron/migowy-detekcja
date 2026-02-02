@@ -2,9 +2,9 @@ import mediapipe as mp
 import cv2 
 import torch
 from model import Sign_language_PointNet , Feather_MLP
+import json
 
 def detect(model, idx_to_label, hand_num):
-        
         mp_hands = mp.solutions.hands
         hands_model = mp_hands.Hands(static_image_mode=False, max_num_hands= hand_num , min_detection_confidence=0.8)
 
@@ -24,11 +24,12 @@ def detect(model, idx_to_label, hand_num):
                 hand_landmarks_1 = results.multi_hand_landmarks[0]
             
                 points1 = torch.tensor([[p.x , p.y , p.z] for p in hand_landmarks_1.landmark])
+                points1 = normalize_points(points1)
                 if hand_num ==2:
                     if len(results.multi_hand_landmarks) >1:
                             hand_landmarks_2 = results.multi_hand_landmarks[1]
                             points2 = torch.tensor([[p.x , p.y , p.z] for p in hand_landmarks_2.landmark])
-                    
+                            points2 = normalize_points(points2)
                     else:
                         points2=  torch.zeros(21,3)
                     
@@ -58,7 +59,34 @@ def detect(model, idx_to_label, hand_num):
     
         cap.release()
         cv2.destroyAllWindows()
-mlp = Feather_MLP()
-model = Sign_language_PointNet()
 
+def normalize_points(points):
+        
+        points = points - points[0]
+        return points
 
+with open("best_hiperparams.json" , "r") as f:
+    config =  json.load(f)
+
+label_map = torch.load("tensordata.pt")["label_map"]
+idx_to_label = {v:k for k,v in label_map.items()}
+out_size = len(label_map)
+
+feather_model = Feather_MLP(
+    xyz=3 , 
+    hidden_size=config["mlp_hidden_size"], 
+    feathers_size=config["feather_size"],
+    layer_num= config["layer_num_mlp"]
+)
+
+model = Sign_language_PointNet(
+    mlp = feather_model ,
+    hidden_size=config["hidden_size"], 
+    out_size=out_size,
+    layer_num=config["layer_num"]  
+ )
+
+model.load_state_dict(torch.load("model.pt"))
+model.to("cpu")
+model.eval()
+detect(model , idx_to_label , hand_num=2)
