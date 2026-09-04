@@ -1,7 +1,7 @@
 import mediapipe as mp
 import cv2 
 import torch
-from model import Sign_language_PointNet , Feather_MLP
+from model import SignlanguagePointNet , FeatureMLP
 import json
 
 def detect(model, idx_to_label, hand_num):
@@ -72,14 +72,14 @@ label_map = torch.load("tensordata.pt")["label_map"]
 idx_to_label = {v:k for k,v in label_map.items()}
 out_size = len(label_map)
 
-feather_model = Feather_MLP(
+feather_model = FeatureMLP(
     xyz=3 , 
     hidden_size=config["mlp_hidden_size"], 
-    feathers_size=config["feather_size"],
+    feature_size=config["feather_size"],
     layer_num= config["layer_num_mlp"]
 )
 
-model = Sign_language_PointNet(
+model = SignlanguagePointNet(
     mlp = feather_model ,
     hidden_size=config["hidden_size"], 
     out_size=out_size,

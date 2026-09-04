@@ -1,7 +1,7 @@
 from torch.utils.data import TensorDataset ,DataLoader ,random_split
 import torch
 import torch.nn as nn
-from model import Feather_MLP , Sign_language_PointNet
+from model import FeatureMLP , SignlanguagePointNet
 import optuna
 import json
 
@@ -79,14 +79,14 @@ def objective(trail):
     layer_num = trail.suggest_int("layer_num", 2 , 5)
     
     
-    mlp = Feather_MLP(
+    mlp = FeatureMLP(
                 xyz =3,
                 hidden_size= mlp_hidden_size ,
                 layer_num= layer_num_mlp ,
-                feathers_size= feather_size 
+                feature_size= feather_size 
                         )
     
-    model = Sign_language_PointNet(
+    model = SignlanguagePointNet(
                 mlp = mlp ,
                 hidden_size= hidden_size,
                 layer_num=layer_num ,
@@ -124,14 +124,14 @@ with open("best_hiperparams.json", "w") as f:
     json.dump(best_params , f , indent=4)
 
 
-feather_model = Feather_MLP(
+feather_model = FeatureMLP(
     xyz=3 , 
     hidden_size=hidden_size_mlp, 
-    feathers_size=feather_size,
+    feature_size=feather_size,
     layer_num= layer_num_mlp
 )
 
-model = Sign_language_PointNet(
+model = SignlanguagePointNet(
     mlp = feather_model ,
     hidden_size=hidden_size, 
     out_size=out_size,
